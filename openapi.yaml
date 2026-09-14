@@ -1,0 +1,1175 @@
+openapi: 3.0.3
+info:
+  title: Ledgora
+  version: 0.1.0
+  description: >-
+    Digital readiness and automation control API for state auditors, comptrollers, and
+    treasurers — strategy, fund-mapped portfolio, fraud, continuous audit, workforce,
+    and modular procurement.
+  x-product-slug: ai-gov-ledgora
+  x-source: ai-in-gov/Deloitte_NASACT_survey_report/
+servers:
+  - url: https://api.example.com
+tags:
+  - name: Strategies
+    description: Digital strategy and milestones
+  - name: Portfolio
+    description: Revenue, audit, and cost use cases
+  - name: Fraud
+    description: Fraud and improper-payment workbench
+  - name: Audit
+    description: Continuous audit exceptions and materiality
+  - name: Funds
+    description: Fund mapping and control assertions
+  - name: Workforce
+    description: Digital skills plans
+  - name: Procurement
+    description: Modular procurement packages
+  - name: Gates
+    description: Security, privacy, independence, and deadlines
+paths:
+  /v1/strategies:
+    get:
+      operationId: listDigitalStrategies
+      tags: [Strategies]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Strategies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeDigitalStrategy"
+    post:
+      operationId: createDigitalStrategy
+      tags: [Strategies]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DigitalStrategyCreate"
+      responses:
+        "201":
+          description: Strategy created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeDigitalStrategy"
+  /v1/strategies/{strategyId}/milestones:
+    parameters:
+      - $ref: "#/components/parameters/StrategyId"
+    post:
+      operationId: addStrategyMilestone
+      tags: [Strategies]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StrategyMilestone"
+      responses:
+        "201":
+          description: Milestone added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeStrategyMilestone"
+  /v1/portfolio/use-cases:
+    get:
+      operationId: listUseCases
+      tags: [Portfolio]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [revenue_collection, auditing, cost_management, other]
+      responses:
+        "200":
+          description: Use cases
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeUseCase"
+    post:
+      operationId: createUseCase
+      tags: [Portfolio]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UseCaseCreate"
+      responses:
+        "201":
+          description: Use case created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeUseCase"
+  /v1/fraud/leads:
+    get:
+      operationId: listFraudLeads
+      tags: [Fraud]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, adjudicating, recovered, dismissed]
+      responses:
+        "200":
+          description: Fraud leads
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeFraudLead"
+    post:
+      operationId: createFraudLead
+      tags: [Fraud]
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FraudLeadCreate"
+      responses:
+        "201":
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeFraudLead"
+  /v1/fraud/leads/{leadId}/adjudication:
+    parameters:
+      - $ref: "#/components/parameters/LeadId"
+    post:
+      operationId: adjudicateFraudLead
+      tags: [Fraud]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdjudicationDecisionCreate"
+      responses:
+        "201":
+          description: Adjudicated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeAdjudicationDecision"
+  /v1/audit/exceptions:
+    get:
+      operationId: listAuditExceptions
+      tags: [Audit]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Audit exceptions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeAuditException"
+    post:
+      operationId: createAuditException
+      tags: [Audit]
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuditExceptionCreate"
+      responses:
+        "201":
+          description: Exception created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeAuditException"
+  /v1/audit/materiality-rules:
+    post:
+      operationId: createMaterialityRule
+      tags: [Audit]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MaterialityRule"
+      responses:
+        "201":
+          description: Rule created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeMaterialityRule"
+  /v1/funds/mappings:
+    get:
+      operationId: listFundMappings
+      tags: [Funds]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Fund mappings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeFundMapping"
+    post:
+      operationId: createFundMapping
+      tags: [Funds]
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundMappingCreate"
+      responses:
+        "201":
+          description: Mapping created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeFundMapping"
+  /v1/funds/control-assertions:
+    post:
+      operationId: createControlAssertion
+      tags: [Funds]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ControlAssertion"
+      responses:
+        "201":
+          description: Assertion recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeControlAssertion"
+  /v1/workforce/skills-plans:
+    get:
+      operationId: listSkillsPlans
+      tags: [Workforce]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Skills plans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeSkillsPlan"
+    post:
+      operationId: createSkillsPlan
+      tags: [Workforce]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkillsPlanCreate"
+      responses:
+        "201":
+          description: Plan created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeSkillsPlan"
+  /v1/procurement/packages:
+    get:
+      operationId: listProcurementPackages
+      tags: [Procurement]
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: Procurement packages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeProcurementPackage"
+    post:
+      operationId: createProcurementPackage
+      tags: [Procurement]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcurementPackageCreate"
+      responses:
+        "201":
+          description: Package created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeProcurementPackage"
+  /v1/gates/security:
+    post:
+      operationId: submitSecurityGate
+      tags: [Gates]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SecurityGate"
+      responses:
+        "201":
+          description: Security gate recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeSecurityGate"
+  /v1/gates/privacy:
+    post:
+      operationId: submitPrivacyGate
+      tags: [Gates]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrivacyGate"
+      responses:
+        "201":
+          description: Privacy gate recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopePrivacyGate"
+  /v1/gates/independence-checks:
+    post:
+      operationId: recordIndependenceCheck
+      tags: [Gates]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IndependenceCheck"
+      responses:
+        "201":
+          description: Independence check recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeIndependenceCheck"
+  /v1/gates/independence-halt:
+    post:
+      operationId: haltForIndependence
+      tags: [Gates]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [useCaseId, reason, haltedBy]
+              properties:
+                useCaseId: { type: string }
+                reason: { type: string }
+                haltedBy: { type: string }
+      responses:
+        "202":
+          description: Automation halted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeIndependenceCheck"
+  /v1/gates/legislative-deadlines:
+    get:
+      operationId: listLegislativeDeadlines
+      tags: [Gates]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deadlines
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEnvelopeLegislativeDeadline"
+    post:
+      operationId: createLegislativeDeadline
+      tags: [Gates]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LegislativeDeadline"
+      responses:
+        "201":
+          description: Deadline created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelopeLegislativeDeadline"
+components:
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+
+    StrategyId:
+      name: strategyId
+      in: path
+      required: true
+      schema: { type: string }
+    LeadId:
+      name: leadId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    UnprocessableEntity:
+      description: Validation failed
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+
+  schemas:
+
+    ResponseMeta:
+      type: object
+      required: [requestId, timestamp]
+      properties:
+        requestId: { type: string }
+        timestamp: { type: string, format: date-time }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+
+    StateOffice:
+      type: object
+      required: [id, stateCode, officeType]
+      properties:
+        id: { type: string }
+        stateCode: { type: string }
+        officeType:
+          type: string
+          enum: [auditor, comptroller, treasurer]
+        name: { type: string }
+    DigitalStrategy:
+      type: object
+      required: [id, officeId, title, ownerId, status]
+      properties:
+        id: { type: string }
+        officeId: { type: string }
+        title: { type: string }
+        ownerId: { type: string }
+        status:
+          type: string
+          enum: [draft, active, superseded]
+        threatOpportunityNotes: { type: string }
+    DigitalStrategyCreate:
+      type: object
+      required: [officeId, title, ownerId]
+      properties:
+        officeId: { type: string }
+        title: { type: string }
+        ownerId: { type: string }
+        threatOpportunityNotes: { type: string }
+    StrategyMilestone:
+      type: object
+      required: [id, strategyId, name, dueAt, status]
+      properties:
+        id: { type: string }
+        strategyId: { type: string }
+        name: { type: string }
+        dueAt: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [planned, in_progress, done, at_risk]
+    UseCase:
+      type: object
+      required: [id, strategyId, category, title, funded]
+      properties:
+        id: { type: string }
+        strategyId: { type: string }
+        category:
+          type: string
+          enum: [revenue_collection, auditing, cost_management, other]
+        title: { type: string }
+        funded: { type: boolean }
+        priority: { type: integer }
+    UseCaseCreate:
+      type: object
+      required: [strategyId, category, title]
+      properties:
+        strategyId: { type: string }
+        category:
+          type: string
+          enum: [revenue_collection, auditing, cost_management, other]
+        title: { type: string }
+        funded: { type: boolean }
+        priority: { type: integer }
+    FundMapping:
+      type: object
+      required: [id, useCaseId, fundCode, appropriationRef]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        fundCode: { type: string }
+        appropriationRef: { type: string }
+    FundMappingCreate:
+      type: object
+      required: [useCaseId, fundCode, appropriationRef]
+      properties:
+        useCaseId: { type: string }
+        fundCode: { type: string }
+        appropriationRef: { type: string }
+    ControlAssertion:
+      type: object
+      required: [id, fundMappingId, assertionType]
+      properties:
+        id: { type: string }
+        fundMappingId: { type: string }
+        assertionType: { type: string }
+        singleAuditRelevant: { type: boolean }
+    FraudLead:
+      type: object
+      required: [id, useCaseId, riskScore, status]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        subjectRef: { type: string }
+        riskScore: { type: number }
+        amountEstimate: { type: number }
+        status:
+          type: string
+          enum: [open, adjudicating, recovered, dismissed]
+    FraudLeadCreate:
+      type: object
+      required: [useCaseId, riskScore]
+      properties:
+        useCaseId: { type: string }
+        subjectRef: { type: string }
+        riskScore: { type: number }
+        amountEstimate: { type: number }
+        signalSummary: { type: string }
+    AdjudicationDecision:
+      type: object
+      required: [id, leadId, outcome, adjudicatorId]
+      properties:
+        id: { type: string }
+        leadId: { type: string }
+        outcome:
+          type: string
+          enum: [recover, dismiss, escalate]
+        adjudicatorId: { type: string }
+        rationale: { type: string }
+        decidedAt: { type: string, format: date-time }
+    AdjudicationDecisionCreate:
+      type: object
+      required: [outcome, adjudicatorId]
+      properties:
+        outcome:
+          type: string
+          enum: [recover, dismiss, escalate]
+        adjudicatorId: { type: string }
+        rationale: { type: string }
+    AuditException:
+      type: object
+      required: [id, useCaseId, materialityRuleId, status]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        materialityRuleId: { type: string }
+        description: { type: string }
+        amount: { type: number }
+        status:
+          type: string
+          enum: [open, under_review, closed]
+    AuditExceptionCreate:
+      type: object
+      required: [useCaseId, materialityRuleId, description]
+      properties:
+        useCaseId: { type: string }
+        materialityRuleId: { type: string }
+        description: { type: string }
+        amount: { type: number }
+    MaterialityRule:
+      type: object
+      required: [id, name, thresholdAmount]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        thresholdAmount: { type: number }
+        samplingMethod: { type: string }
+    IndependenceCheck:
+      type: object
+      required: [id, useCaseId, passed, checkedBy]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        passed: { type: boolean }
+        checkedBy: { type: string }
+        haltReason: { type: string }
+        roleSeparationNotes: { type: string }
+    SkillsPlan:
+      type: object
+      required: [id, officeId, gapSummary, orgSupportPresent]
+      properties:
+        id: { type: string }
+        officeId: { type: string }
+        gapSummary: { type: string }
+        technical: { type: boolean }
+        businessApplication: { type: boolean }
+        collaboration: { type: boolean }
+        iterativeRisk: { type: boolean }
+        orgSupportPresent: { type: boolean }
+    SkillsPlanCreate:
+      type: object
+      required: [officeId, gapSummary, orgSupportPresent]
+      properties:
+        officeId: { type: string }
+        gapSummary: { type: string }
+        technical: { type: boolean }
+        businessApplication: { type: boolean }
+        collaboration: { type: boolean }
+        iterativeRisk: { type: boolean }
+        orgSupportPresent: { type: boolean }
+    ProcurementPackage:
+      type: object
+      required: [id, useCaseId, modular, agileSow]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        modular: { type: boolean }
+        agileSow: { type: boolean }
+        lessRestrictiveTcPlaybook: { type: boolean }
+        status:
+          type: string
+          enum: [draft, solicited, awarded, closed]
+    ProcurementPackageCreate:
+      type: object
+      required: [useCaseId, modular, agileSow]
+      properties:
+        useCaseId: { type: string }
+        modular: { type: boolean }
+        agileSow: { type: boolean }
+        lessRestrictiveTcPlaybook: { type: boolean }
+    PrivacyGate:
+      type: object
+      required: [id, useCaseId, outcome]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        outcome:
+          type: string
+          enum: [passed, failed, conditional]
+        reviewerId: { type: string }
+    SecurityGate:
+      type: object
+      required: [id, useCaseId, outcome]
+      properties:
+        id: { type: string }
+        useCaseId: { type: string }
+        outcome:
+          type: string
+          enum: [passed, failed, conditional]
+        reviewerId: { type: string }
+    LegislativeDeadline:
+      type: object
+      required: [id, officeId, name, dueAt]
+      properties:
+        id: { type: string }
+        officeId: { type: string }
+        name: { type: string }
+        dueAt: { type: string, format: date-time }
+        riskFlag: { type: boolean }
+    TransparencyRelease:
+      type: object
+      required: [id, title, fundReconciled]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        fundReconciled: { type: boolean }
+        licence: { type: string }
+        publishedAt: { type: string, format: date-time }
+    VendorScore:
+      type: object
+      required: [id, vendorName, modularOutcomeScore]
+      properties:
+        id: { type: string }
+        vendorName: { type: string }
+        modularOutcomeScore: { type: number }
+        satisfaction: { type: number }
+
+    DataEnvelopeDigitalStrategy:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/DigitalStrategy"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeDigitalStrategy:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/DigitalStrategy"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeStrategyMilestone:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/StrategyMilestone"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeStrategyMilestone:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/StrategyMilestone"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeUseCase:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/UseCase"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeUseCase:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/UseCase"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeFraudLead:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/FraudLead"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeFraudLead:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/FraudLead"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeAdjudicationDecision:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/AdjudicationDecision"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeAdjudicationDecision:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/AdjudicationDecision"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeAuditException:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/AuditException"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeAuditException:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditException"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeMaterialityRule:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/MaterialityRule"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeMaterialityRule:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/MaterialityRule"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeFundMapping:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/FundMapping"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeFundMapping:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/FundMapping"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeControlAssertion:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/ControlAssertion"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeControlAssertion:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ControlAssertion"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeSkillsPlan:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/SkillsPlan"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeSkillsPlan:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/SkillsPlan"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeProcurementPackage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/ProcurementPackage"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeProcurementPackage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProcurementPackage"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeSecurityGate:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/SecurityGate"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeSecurityGate:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/SecurityGate"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopePrivacyGate:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/PrivacyGate"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopePrivacyGate:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/PrivacyGate"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeIndependenceCheck:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/IndependenceCheck"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeIndependenceCheck:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/IndependenceCheck"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
+
+    DataEnvelopeLegislativeDeadline:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: "#/components/schemas/LegislativeDeadline"
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    ListEnvelopeLegislativeDeadline:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/LegislativeDeadline"
+            nextCursor: { type: string }
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+
